@@ -580,20 +580,16 @@
 
   <strong style="font-size:17px;display:block;margin-bottom:14px;">Configuración</strong>
 
-  <!-- API Key -->
+  <!-- API info -->
   <div class="card">
-    <div class="card-title">🔑 API Key de Anthropic</div>
+    <div class="card-title">🤖 Conexión con la IA</div>
     <div class="setting-desc">
-      La app usa Claude Vision (Anthropic) para analizar las fotos.
-      Tu clave se guarda <strong>solo en este dispositivo</strong> y se envía únicamente a Anthropic.
+      La app usa Claude Vision (Anthropic) a través de un servidor seguro.<br>
+      No necesitás configurar ninguna clave.
     </div>
-    <div class="alert-warn alert-box" style="margin-bottom:12px;">
-      ⚠️ Obtené tu clave gratis en <strong>console.anthropic.com</strong> → API Keys
+    <div class="alert-ok alert-box">
+      ✅ Conectada al servidor — lista para analizar fotos
     </div>
-    <div class="setting-label">API Key</div>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-…" autocomplete="off" />
-    <button class="btn btn-primary" onclick="saveKey()">💾 Guardar clave</button>
-    <div id="keyStatus"></div>
   </div>
 
   <!-- Physiological stage -->
@@ -671,11 +667,9 @@ function nav(name) {
 ═══════════════════════════════════════ */
 let capturedDataUrl = null;
 
+const PROXY_URL = 'https://script.google.com/macros/s/AKfycbzwUnOqubC86-Tnbe3FWau3SUpZQLWSADlSjFAAiBpaW-H0NHKnY4H59etFjJKqpC4h/exec';
+
 function openCamera() {
-  if (!localStorage.getItem('cc_api_key')) {
-    alert('⚠️ Primero configurá tu API Key en Configuración (⚙️).');
-    nav('settings'); loadSettings(); return;
-  }
   document.getElementById('cameraInput').click();
 }
 
@@ -746,8 +740,6 @@ const STAGES = {
 
 async function analyze() {
   if (!capturedDataUrl) return;
-  const apiKey = localStorage.getItem('cc_api_key');
-  if (!apiKey) { alert('⚠️ Configurá tu API Key primero.'); return; }
 
   const stageKey = localStorage.getItem('cc_stage') || 'temprana';
   const stage    = STAGES[stageKey];
@@ -779,25 +771,25 @@ PASO 2b — Para CC ≥ 3.25, evaluá en orden:
    • Ligamento sacro visible, laterales parcialmente visibles → CC 3.50
    • Ligamento sacro parcialmente visible, laterales no visibles → CC 3.75
    • Ambos ligamentos no visibles, línea recta cadera-isquión → CC ≥ 4.0
- � • Punta de costillas cortas no visible → CC 4.25
+   • Punta de costillas cortas no visible → CC 4.25
    • Isquión sumergido en grasa → CC 4.50
    • Hueso de cadera no visible → CC 4.75
    • Sin accidentes óseos visibles → CC 5.0
 
 ════ INDICADORES COMPLEMENTARIOS ════
 
-A) VÉRTEBRAS DORSALES — sección transversal (vista desde arriba o atrás):
- � • CC 1: Procesos espinosos muy agudos y prominentes, sin grasa, músculos lumbares hundidos
+A) VÉRTEBRAS DORSALES — sección transversal (Vista desde arriba o atrás):
+   • CC 1: Procesos espinosos muy agudos y prominentes, sin grasa, músculos lumbares hundidos
    • CC 2: Procesos espinosos visibles con bordes afilados, mínima cobertura grasa
- � • CC 3: Procesos espinosos visibles pero con grasa moderada; equilibrio hueso-músculo
+   • CC 3: Procesos espinosos visibles pero con grasa moderada; equilibrio hueso-músculo
    • CC 4: Procesos espinosos apenas perceptibles; la grasa domina sobre el hueso
    • CC 5: Procesos espinosos enterrados bajo grasa; línea dorsal plana o convexa
 
 B) HUESOS DE LA CADERA / HOOK BONES — sección transversal desde atrás:
    • CC 1: Muy angulares, cavidades profundas a ambos lados, sin cobertura grasa
- � • CC 2: Angulares, cavidades evidentes, escasa grasa
+   • CC 2: Angulares, cavidades evidentes, escasa grasa
    • CC 3: Equilibrio entre ángulo óseo y cobertura grasa
- � • CC 4: Forma más redondeada, grasa predomina sobre el hueso
+   • CC 4: Forma más redondeada, grasa predomina sobre el hueso
    • CC 5: Completamente cubiertos, forma convexa sin ángulos visibles
 
 C) CAVIDAD ENTRE BASE DE COLA Y PINBONE (tailhead-pinbone cavity) — vista trasera:
@@ -831,14 +823,9 @@ Respondé SOLO con un objeto JSON válido, sin texto adicional, sin bloques de c
 }`;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(PROXY_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({
         model: 'claude-opus-4-5',
         max_tokens: 1024,
@@ -1016,21 +1003,8 @@ function clearHistory() {
    SETTINGS
 ═══════════════════════════════════════ */
 function loadSettings() {
-  const key   = localStorage.getItem('cc_api_key') || '';
-  const stage = localStorage.getItem('cc_stage')   || 'temprana';
-  document.getElementById('apiKeyInput').value = key;
+  const stage = localStorage.getItem('cc_stage') || 'temprana';
   document.getElementById('stageSelect').value = stage;
-  document.getElementById('keyStatus').innerHTML = key
-    ? '<span class="status-ok">✅ API Key configurada</span>'
-    : '<span class="status-err">Sin clave configurada</span>';
-}
-
-function saveKey() {
-  const k = document.getElementById('apiKeyInput').value.trim();
-  const el = document.getElementById('keyStatus');
-  if (!k) { el.innerHTML = '<span class="status-err">❌ Ingresá una clave válida</span>'; return; }
-  localStorage.setItem('cc_api_key', k);
-  el.innerHTML = '<span class="status-ok">✅ Clave guardada correctamente</span>';
 }
 
 function saveStage() {
