@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1b4332" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>CC Lecheras</title>
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    /* ── Tokens ── */
+    :root {
+      --green-dark:  #1b4332;
+      --green:       #2d6a4f;
+      --green-mid:   #40916c;
+      --green-light: #74c69d;
+      --green-pale:  #d8f3dc;
+      --yellow:      #f59e0b;
+      --orange:      #ea580c;
+      --red:         #dc2626;
+      --blue:        #0284c7;
+      --purple:      #7c3aed;
+      --bg:          #f0f4f1;
+      --card:        #ffffff;
+      --border:      #d1d5db;
+      --text:        #111827;
+      --muted:       #6b7280;
+      --shadow:      0 2px 12px rgba(0,0,0,.10);
+      --radius:      14px;
+    }
+
+    /* ── Base ── */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: var(--green-dark);
+      color: #fff;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 90;
+      box-shadow: var(--shadow);
+    }
+    .header-title { font-size: 19px; font-weight: 800; letter-spacing: -.3px; }
+    .header-sub   { font-size: 11px; opacity: .75; margin-top: 1px; }
+    .icon-btn {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: none; cursor: pointer;
+      background: rgba(255,255,255,.18);
+      color: #fff; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Screens ── */
+    .screen { display: none; padding: 16px 14px 96px; }
+    .screen.active { display: block; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .6px; color: var(--muted); margin-bottom: 10px;
+    }
+
+    /* ── Scale bar ── */
+    .scale-bar { display: flex; border-radius: 8px; overflow: hidden; height: 28px; }
+    .scale-seg {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff;
+    }
+    .scale-labels { display: flex; justify-content: space-between; margin-top: 4px; }
+    .scale-labels span { font-size: 10px; color: var(--muted); }
+
+    /* ── Camera zone ── */
+    .cam-zone {
+      background: #111;
+      border-radius: 12px;
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      margin-bottom: 14px;
+    }
+    .cam-placeholder { text-align: center; color: rgba(255,255,255,.45); }
+    .cam-placeholder .icon { font-size: 52px; display: block; margin-bottom: 8px; }
+    .cam-placeholder p { font-size: 13px; line-height: 1.5; padding: 0 24px; }
+
+    #previewImg {
+      width: 100%; height: 100%; object-fit: cover;
+      display: none; border-radius: 12px;
+    }
+
+    /* Frame overlay */
+    .frame-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+    }
+    .frame-box {
+      width: 78%; height: 82%;
+      border: 2.5px dashed rgba(255,255,255,.6);
+      border-radius: 10px;
+      position: relative;
+    }
+    .frame-label {
+      position: absolute; bottom: -26px; left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,.8); font-size: 11px;
+      white-space: nowrap; background: rgba(0,0,0,.35);
+      padding: 2px 10px; border-radius: 20px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      border: none; border-radius: 12px; cursor: pointer;
+      font-size: 15px; font-weight: 700;
+      padding: 15px 20px; width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: filter .15s;
+    }
+    .btn:active { filter: brightness(.88); }
+    .btn-primary   { background: var(--green); color: #fff; }
+    .btn-secondary { background: var(--card); color: var(--green); border: 2px solid var(--green); }
+    .btn-danger    { background: var(--red); color: #fff; }
+
+    .btn-row { display: flex; gap: 10px; }
+    .btn-row .btn { flex: 1; padding: 13px 10px; font-size: 14px; }
+
+    /* ── Tips ── */
+    .tips { font-size: 13px; color: var(--muted); line-height: 1.9; }
+
+    /* ── Loading ── */
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.72); z-index: 200;
+      flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    }
+    .overlay.show { display: flex; }
+    .spinner {
+      width: 52px; height: 52px;
+      border: 4px solid rgba(255,255,255,.25);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .overlay-text { color: #fff; font-size: 15px; font-weight: 500; }
+    .overlay-sub  { color: rgba(255,255,255,.6); font-size: 12px; margin-top: -8px; }
+
+    /* ── Result ── */
+    .score-hero {
+      text-align: center; padding: 8px 0 12px;
+    }
+    .score-num {
+      font-size: 80px; font-weight: 900; line-height: 1;
+      letter-spacing: -2px;
+    }
+    .score-lbl { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 14px; border-radius: 20px;
+      font-size: 13px; font-weight: 700; margin: 10px auto 0;
+    }
+    .result-img {
+      width: 100%; border-radius: 10px; max-height: 200px;
+      object-fit: cover; margin-bottom: 14px;
+    }
+    .obs-item {
+      display: flex; gap: 9px; align-items: flex-start;
+      font-size: 14px; line-height: 1.55; margin-bottom: 7px;
+    }
+    .obs-bullet { color: var(--green); font-weight: 900; flex-shrink: 0; }
+    .reco-box {
+      background: var(--green-pale);
+      border-left: 4px solid var(--green);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 14px;
+      font-size: 14px; line-height: 1.65;
+    }
+    .alert-box {
+      border-radius: 10px; padding: 11px 14px;
+      font-size: 13px; line-height: 1.5; margin-bottom: 14px;
+    }
+    .alert-danger { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; }
+    .alert-warn   { background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; }
+    .alert-ok     { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+
+    .meta-row {
+      font-size: 12px; color: var(--muted); margin-top: 6px;
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .meta-chip {
+      background: var(--bg); border-radius: 20px;
+      padding: 3px 10px; font-size: 11px;
+    }
+
+    /* ── History ── */
+    .hist-item {
+      background: var(--card); border-radius: var(--radius);
+      padding: 14px; margin-bottom: 10px;
+      box-shadow: var(--shadow);
+      display: flex; gap: 12px; align-items: center;
+      cursor: pointer;
+    }
+    .hist-thumb {
+      width: 58px; height: 58px; border-radius: 8px;
+      object-fit: cover; background: var(--bg); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .hist-score { font-size: 30px; font-weight: 900; }
+    .hist-date  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .hist-desc  { font-size: 12px; color: var(--text); margin-top: 3px; line-height: 1.4; }
+
+    /* ── Settings ── */
+    .setting-label { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+    .setting-desc  { font-size: 12px; color: var(--muted); margin-bottom: 10px; line-height: 1.5; }
+    input[type=password], input[type=text], select, input[type=email] {
+      width: 100%; border: 1.5px solid var(--border);
+      border-radius: 9px; padding: 12px 13px;
+      font-size: 14px; color: var(--text);
+      background: var(--bg); margin-bottom: 10px;
+      outline: none; transition: border-color .2s;
+    }
+    input:focus, select:focus { border-color: var(--green); }
+
+    /* ── Bottom nav ── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px;
+      background: var(--card); border-top: 1px solid var(--border);
+      display: flex; z-index: 90;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-btn {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; gap: 3px; padding: 9px 6px;
+      border: none; background: none; cursor: pointer;
+      color: var(--muted); font-size: 10px; font-weight: 600;
+      transition: color .15s;
+    }
+    .nav-btn .nav-ico { font-size: 22px; }
+    .nav-btn.active { color: var(--green); }
+
+    /* ── Empty state ── */
+    .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+    .empty .e-ico { font-size: 48px; margin-bottom: 12px; }
+    .empty p { font-size: 14px; line-height: 1.6; }
+
+    /* ── API key status ── */
+    #keyStatus { margin-top: 8px; font-size: 13px; }
+    .status-ok  { color: #16a34a; }
+    .status-err { color: var(--red); }
+
+    /* ── Section divider ── */
+    .divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+    /* hide file input */
+    #cameraInput { display: none; }
+
+    /* ── Accordion / Reference guide ── */
+    .accordion-btn {
+      width: 100%; border: none; background: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 14px; font-weight: 700; color: var(--green);
+      padding: 0; text-align: left;
+    }
+    .accordion-btn .chevron {
+      font-size: 18px; transition: transform .25s; display: inline-block;
+    }
+    .accordion-btn.open .chevron { transform: rotate(180deg); }
+    .accordion-body { display: none; margin-top: 14px; }
+    .accordion-body.open { display: block; }
+
+    /* BCS reference rows */
+    .ref-row {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .ref-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .ref-score-pill {
+      min-width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; font-weight: 900; color: #fff; flex-shrink: 0;
+    }
+    .ref-content { flex: 1; }
+    .ref-title  { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .ref-detail { font-size: 11.5px; color: var(--muted); line-height: 1.6; }
+    .ref-chips  { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+    .ref-chip   {
+      font-size: 10px; padding: 2px 8px; border-radius: 20px;
+      background: var(--bg); color: var(--text); font-weight: 600;
+    }
+
+    /* Shape SVG */
+    .shape-svg { font-size: 22px; }
+  </style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div class="overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="overlay-text">Analizando condición corporal…</div>
+  <div class="overlay-sub">La IA está evaluando la foto</div>
+</div>
+
+<!-- Header -->
+<header class="header">
+  <div>
+    <div class="header-title">🐄 CC Lecheras</div>
+    <div class="header-sub">Condición Corporal · Escala 1–5</div>
+  </div>
+  <button class="icon-btn" onclick="nav('settings')" aria-label="Configuración">⚙️</button>
+</header>
+
+<!-- Hidden camera input -->
+<input type="file" id="cameraInput" accept="image/*" capture="environment" />
+
+<!-- ════════════════════════════════════
+     SCREEN 1 · EVALUAR
+════════════════════════════════════ -->
+<section class="screen active" id="screen-home">
+
+  <!-- Scale reference -->
+  <div class="card">
+    <div class="card-title">Escala de referencia</div>
+    <div class="scale-bar">
+      <div class="scale-seg" style="background:var(--red);    flex:1">1</div>
+      <div class="scale-seg" style="background:var(--orange); flex:1.5">2</div>
+      <div class="scale-seg" style="background:var(--yellow); flex:1">2.5</div>
+      <div class="scale-seg" style="background:var(--green);  flex:1.5">3</div>
+      <div class="scale-seg" style="background:#059669;       flex:1">3.5</div>
+      <div class="scale-seg" style="background:var(--blue);   flex:1">4</div>
+      <div class="scale-seg" style="background:var(--purple); flex:0.8">5</div>
+    </div>
+    <div class="scale-labels">
+      <span>← Muy flaca</span>
+      <span>Óptima</span>
+      <span>Muy gorda →</span>
+    </div>
+  </div>
+
+  <!-- Camera area -->
+  <div class="card" style="padding:14px;">
+    <div class="cam-zone" id="camZone">
+      <div class="cam-placeholder" id="camPlaceholder">
+        <span class="icon">📷</span>
+        <p>Encuadrá la vaca<br>desde atrás</p>
+      </div>
+      <img id="previewImg" alt="Foto de la vaca" />
+      <div class="frame-overlay" id="frameOverlay">
+        <div class="frame-box">
+          <div class="frame-label">Centrá la grupa aquí</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Before capture -->
+    <div id="beforeCapture">
+      <p class="tips" style="margin-bottom:12px;">
+        📍 Paráte <strong>detrás de la vaca</strong> a ~2 m, encuadrá la grupa y tomá la foto.
+      </p>
+      <button class="btn btn-primary" onclick="openCamera()">📷 Tomar foto de la vaca</button>
+    </div>
+
+    <!-- After capture -->
+    <div id="afterCapture" style="display:none;">
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="retake()">↩ Repetir</button>
+        <button class="btn btn-primary"   onclick="analyze()">🔍 Analizar CC</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tips -->
+  <div class="card">
+    <div class="card-title">💡 Tips para mejor resultado</div>
+    <div class="tips">
+      ✅ Foto desde atrás, centrada en la grupa<br>
+      ✅ Buena luz natural, sin sombras duras<br>
+      ✅ Vaca quieta y parada en terreno plano<br>
+      ✅ Incluir hueso de cadera e isquiones<br>
+      ❌ Evitar ángulos laterales o desde adelante
+    </div>
+  </div>
+
+  <!-- Reference guide (collapsible) -->
+  <div class="card" id="refCard">
+    <button class="accordion-btn" id="refBtn" onclick="toggleRef()">
+      <span>📚 Guía visual de puntajes</span>
+      <span class="chevron">⌄</span>
+    </button>
+    <div class="accordion-body" id="refBody">
+
+      <!-- CC 1 -->
+      <div class="ref-row">
+        <div class="ref-score-pill" style="background:var(--red);">1</div>
+        <div class="ref-content">
+          <div class="ref-title">Desnutrición severa</div>
+          <div class="ref-detail">
+            Todos los huesos muy prominentes. Cavidad tailhead-pinbone en <strong>V profunda y abierta</strong>.
+            Vértebras con procesos espinosos agudos sin cobertura. Hook bones angulares con cavidades profundas a ambos lados.
+          </div>
+          <div class="ref-chips">
+            <span class="ref-chip">▽ V muy marcada</span>
+            <span class="ref-chip">Sin grasa</span>
+            <span class="ref-chip">Costillas visibles</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CC 2 -->
+      <div class="ref-row">
+        <div class="ref-score-pill" style="background:var(--orange);">2</div>
+        <div class="ref-content">
+          <div class="ref-title">Delgada — estructura evidente</div>
+          <div class="ref-detail">
+            Estructura ósea obvia. Cavidad tailhead-pinbone en <strong>V clara</strong>.
+            Vértebras con bordes afilados. Hook bones angulares con escasa grasa.
+            Isquiones y ala del ileón marcados. 2/3 costillas cortas visibles.
+          </div>
+          <div class="ref-chips">
+            <span class="ref-chip">▽ V clara</span>
+            <span class="ref-chip">Poca grasa</span>
+            <span class="ref-chip">Hook bones angulares</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CC 2.5 -->
+      <div class="ref-row">
+        <div class="ref-score-pill" style="background:var(--yellow);">2.5</div>
+        <div class="ref-content">
+          <div class="ref-title">Bajo el óptimo</div>
+          <div class="ref-detail">
+            Línea cadera-isquión en V. Isquión con algo de grasa subcutánea palpable.
+            Cavidad tailhead-pinbone visible pero menos profunda.
+            Mitad de costillas cortas visibles. Vértebras con grasa escasa.
+          </div>
+          <div class="ref-chips">
+            <span class="ref-chip">▽ V moderada</span>
+            <span class="ref-chip">Grasa incipiente</span>
+            <span class="ref-chip">½ costillas visibles</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CC 3 -->
+      <div class="ref-row">
+        <div class="ref-score-pill" style="background:var(--green);">3</div>
+        <div class="ref-content">
+          <div class="ref-title">Óptima — equilibrio estructura/cobertura</div>
+          <div class="ref-detail">
+            Línea cadera-isquión en <strong>V suave o U incipiente</strong>.
+            Cavidad tailhead-pinbone moderada, V que se suaviza.
+            Vértebras visibles con buena cobertura grasa. Hook bones equilibrados.
+            Ligamentos sacro y laterales de cola visibles (3.25) o parcialmente visibles (3.50).
+          </div>
+          <div class="ref-chips">
+            <span class="ref-chip">V→U transición</span>
+            <span class="ref-chip">Grasa moderada</span>
+            <span class="ref-chip">Ligamentos visibles</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CC 3.5 -->
+      <div class="ref-row">
+        <div class="ref-score-pill" style="background:#059669;">3.5</div>
+        <div class="ref-content">
+          <div class="ref-title">Buena — leve sobrecondición</div>
+          <div class="ref-detail">
+            Línea cadera-isquión en <strong>U</strong>. Cavidad tailhead-pinbone superficial.
+            Ligamento sacro visible, laterales de cola parcialmente ocultos.
+            Hook bones redondeados, grasa predomina. Vértebras apenas perceptibles.
+          </div>
+          <div class="ref-chips">
+            <span class="ref-chip">∪ U clara</span>
+            <span class="ref-chip">Grasa buena</span>
+            <span class="ref-chip">Ligamentos parciales</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CC 4 -->
+      <div class="ref-row">
+        <div class="ref-score-pill" style="background:var(--blue);">4</div>
+        <div class="ref-content">
+          <div class="ref-title">Gorda — estructura poco visible</div>
+          <div class="ref-detail">
+            Cobertura grasa domina sobre la estructura. Cavidad tailhead-pinbone casi rellena.
+            Ambos ligamentos de cola no visibles. Línea cadera-isquión recta.
+            Hook bones completamente redondeados. Vértebras enterradas bajo grasa.
+          </div>
+          <div class="ref-chips">
+            <span class="ref-chip">∪ U llena</span>
+            <span class="ref-chip">Sin ligamentos</span>
+            <span class="ref-chip">Hook bones ocultos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CC 5 -->
+      <div class="ref-row">
+        <div class="ref-score-pill" style="background:var(--purple);">5</div>
+        <div class="ref-content">
+          <div class="ref-title">Obesa — sobrecondición severa</div>
+          <div class="ref-detail">
+            Sin accidentes óseos visibles. Cavidad tailhead-pinbone completamente rellena, zona plana.
+            Grasa en depósitos visibles. Hook bones y vértebras enterrados.
+            Alto riesgo de cetosis, distocia y patologías reproductivas.
+          </div>
+          <div class="ref-chips">
+            <span class="ref-chip">Sin huesos visibles</span>
+            <span class="ref-chip">Grasa excesiva</span>
+            <span class="ref-chip">⚠️ Riesgo cetosis</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /accordion-body -->
+  </div><!-- /refCard -->
+
+</section>
+
+
+<!-- ════════════════════════════════════
+     SCREEN 2 · RESULTADO
+════════════════════════════════════ -->
+<section class="screen" id="screen-result">
+  <div id="resultContent">
+    <div class="empty">
+      <div class="e-ico">📊</div>
+      <p>Todavía no hay resultado.<br>Tomá una foto primero.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     SCREEN 3 · HISTORIAL
+════════════════════════════════════ -->
+<section class="screen" id="screen-history">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+    <strong style="font-size:17px;">Historial</strong>
+    <button onclick="clearHistory()"
+      style="background:none;border:none;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;">
+      Limpiar todo
+    </button>
+  </div>
+  <div id="historyList"></div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     SCREEN 4 · CONFIGURACIÓN
+════════════════════════════════════ -->
+<section class="screen" id="screen-settings">
+
+  <strong style="font-size:17px;display:block;margin-bottom:14px;">Configuración</strong>
+
+  <!-- API Key -->
+  <div class="card">
+    <div class="card-title">🔑 API Key de Anthropic</div>
+    <div class="setting-desc">
+      La app usa Claude Vision (Anthropic) para analizar las fotos.
+      Tu clave se guarda <strong>solo en este dispositivo</strong> y se envía únicamente a Anthropic.
+    </div>
+    <div class="alert-warn alert-box" style="margin-bottom:12px;">
+      ⚠️ Obtené tu clave gratis en <strong>console.anthropic.com</strong> → API Keys
+    </div>
+    <div class="setting-label">API Key</div>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-…" autocomplete="off" />
+    <button class="btn btn-primary" onclick="saveKey()">💾 Guardar clave</button>
+    <div id="keyStatus"></div>
+  </div>
+
+  <!-- Physiological stage -->
+  <div class="card">
+    <div class="card-title">🐄 Etapa fisiológica</div>
+    <div class="setting-desc">
+      Ayuda a la IA a comparar el resultado con el EC objetivo de cada momento productivo.
+    </div>
+    <div class="setting-label">Etapa del rodeo</div>
+    <select id="stageSelect">
+      <option value="parto">Parto — EC objetivo 3.50</option>
+      <option value="temprana" selected>Lactancia temprana — EC objetivo 2.75</option>
+      <option value="media">Lactancia media — EC objetivo 3.00</option>
+      <option value="tardia">Lactancia tardía — EC objetivo 3.25</option>
+      <option value="secado">Período de secado — EC objetivo 3.50</option>
+    </select>
+    <button class="btn btn-primary" onclick="saveStage()">💾 Guardar etapa</button>
+  </div>
+
+  <!-- About -->
+  <div class="card">
+    <div class="card-title">ℹ️ Acerca de la app</div>
+    <div class="setting-desc" style="margin:0;">
+      Metodología Ferguson et al. (1994) — escala USA 1 a 5.<br>
+      Basada en Grigera & Bargo (2005), Elanco Animal Health.<br><br>
+      <strong>Versión 1.0</strong> · Solo para uso orientativo.<br>
+      La evaluación no reemplaza al veterinario.
+    </div>
+  </div>
+
+</section>
+
+
+<!-- Bottom navigation -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-home"    onclick="nav('home')">
+    <span class="nav-ico">📷</span><span>Evaluar</span>
+  </button>
+  <button class="nav-btn" id="nav-result"  onclick="nav('result')">
+    <span class="nav-ico">📊</span><span>Resultado</span>
+  </button>
+  <button class="nav-btn" id="nav-history" onclick="nav('history');renderHistory()">
+    <span class="nav-ico">📋</span><span>Historial</span>
+  </button>
+  <button class="nav-btn" id="nav-settings" onclick="nav('settings');loadSettings()">
+    <span class="nav-ico">⚙️</span><span>Config</span>
+  </button>
+</nav>
+
+
+<script>
+/* ═══════════════════════════════════════
+   ACCORDION
+═══════════════════════════════════════ */
+function toggleRef() {
+  const btn  = document.getElementById('refBtn');
+  const body = document.getElementById('refBody');
+  btn.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+function nav(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  const nb = document.getElementById('nav-' + name);
+  if (nb) nb.classList.add('active');
+}
+
+/* ═══════════════════════════════════════
+   CAMERA
+═══════════════════════════════════════ */
+let capturedDataUrl = null;
+
+function openCamera() {
+  if (!localStorage.getItem('cc_api_key')) {
+    alert('⚠️ Primero configurá tu API Key en Configuración (⚙️).');
+    nav('settings'); loadSettings(); return;
+  }
+  document.getElementById('cameraInput').click();
+}
+
+document.getElementById('cameraInput').addEventListener('change', async function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  this.value = '';
+
+  const raw = await readFile(file);
+  capturedDataUrl = await resizeImage(raw, 1024, 1024);
+
+  const img = document.getElementById('previewImg');
+  img.src = capturedDataUrl;
+  img.style.display = 'block';
+  document.getElementById('camPlaceholder').style.display = 'none';
+  document.getElementById('frameOverlay').style.display = 'none';
+  document.getElementById('beforeCapture').style.display = 'none';
+  document.getElementById('afterCapture').style.display = 'block';
+});
+
+function readFile(file) {
+  return new Promise(res => {
+    const r = new FileReader();
+    r.onload = ev => res(ev.target.result);
+    r.readAsDataURL(file);
+  });
+}
+
+function resizeImage(dataUrl, maxW, maxH) {
+  return new Promise(res => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > maxW || h > maxH) {
+        const ratio = Math.min(maxW / w, maxH / h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      res(c.toDataURL('image/jpeg', 0.85));
+    };
+    img.src = dataUrl;
+  });
+}
+
+function retake() {
+  capturedDataUrl = null;
+  const img = document.getElementById('previewImg');
+  img.src = ''; img.style.display = 'none';
+  document.getElementById('camPlaceholder').style.display = 'block';
+  document.getElementById('frameOverlay').style.display = 'flex';
+  document.getElementById('beforeCapture').style.display = 'block';
+  document.getElementById('afterCapture').style.display = 'none';
+}
+
+/* ═══════════════════════════════════════
+   ANALYSIS
+═══════════════════════════════════════ */
+const STAGES = {
+  parto:    { label: 'Parto',             target: 3.50, range: '3.25–3.75' },
+  temprana: { label: 'Lactancia temprana', target: 2.75, range: '2.50–3.00' },
+  media:    { label: 'Lactancia media',    target: 3.00, range: '2.75–3.25' },
+  tardia:   { label: 'Lactancia tardía',   target: 3.25, range: '3.00–3.50' },
+  secado:   { label: 'Período de secado',  target: 3.50, range: '3.25–3.50' },
+};
+
+async function analyze() {
+  if (!capturedDataUrl) return;
+  const apiKey = localStorage.getItem('cc_api_key');
+  if (!apiKey) { alert('⚠️ Configurá tu API Key primero.'); return; }
+
+  const stageKey = localStorage.getItem('cc_stage') || 'temprana';
+  const stage    = STAGES[stageKey];
+
+  document.getElementById('loadingOverlay').classList.add('show');
+
+  const base64    = capturedDataUrl.split(',')[1];
+  const mediaType = capturedDataUrl.split(';')[0].split(':')[1];
+
+  const systemPrompt = `Sos un especialista en evaluación de condición corporal (CC/BCS) en vacas lecheras, usando la escala americana de 1 a 5 (Ferguson et al., 1994) donde cada punto se subdivide en cuartos de 0.25.
+
+════ METODOLOGÍA PRINCIPAL (Ferguson et al., 1994) ════
+
+PASO 1 — forma de la línea cadera-isquión vista desde atrás:
+   • Forma V (ángulo visible, fémur expuesto) → CC ≤ 3.0
+   • Forma U (redondeada, grasa cubre fémur) → CC ≥ 3.25
+
+PASO 2a — Para CC ≤ 3.0, evaluá en orden:
+   • Vista lateral en V, cadera redondeada desde atrás → CC 3.0
+   • Cadera angular, isquión parcialmente cubierto por grasa → CC 2.75
+   • Ala del ileón e isquión angulares, grasa subcutánea palpable → CC 2.50
+   • Sin grasa en isquión → CC < 2.50
+   • Mitad de costillas cortas visibles → CC 2.25
+   • 2/3 de costillas cortas visibles → CC 2.0
+   • Todas las estructuras óseas muy prominentes → CC 1.0–1.75
+
+PASO 2b — Para CC ≥ 3.25, evaluá en orden:
+   • Ligamento sacro y ligamentos laterales de cola visibles → CC 3.25
+   • Ligamento sacro visible, laterales parcialmente visibles → CC 3.50
+   • Ligamento sacro parcialmente visible, laterales no visibles → CC 3.75
+   • Ambos ligamentos no visibles, línea recta cadera-isquión → CC ≥ 4.0
+ � • Punta de costillas cortas no visible → CC 4.25
+   • Isquión sumergido en grasa → CC 4.50
+   • Hueso de cadera no visible → CC 4.75
+   • Sin accidentes óseos visibles → CC 5.0
+
+════ INDICADORES COMPLEMENTARIOS ════
+
+A) VÉRTEBRAS DORSALES — sección transversal (vista desde arriba o atrás):
+ � • CC 1: Procesos espinosos muy agudos y prominentes, sin grasa, músculos lumbares hundidos
+   • CC 2: Procesos espinosos visibles con bordes afilados, mínima cobertura grasa
+ � • CC 3: Procesos espinosos visibles pero con grasa moderada; equilibrio hueso-músculo
+   • CC 4: Procesos espinosos apenas perceptibles; la grasa domina sobre el hueso
+   • CC 5: Procesos espinosos enterrados bajo grasa; línea dorsal plana o convexa
+
+B) HUESOS DE LA CADERA / HOOK BONES — sección transversal desde atrás:
+   • CC 1: Muy angulares, cavidades profundas a ambos lados, sin cobertura grasa
+ � • CC 2: Angulares, cavidades evidentes, escasa grasa
+   • CC 3: Equilibrio entre ángulo óseo y cobertura grasa
+ � • CC 4: Forma más redondeada, grasa predomina sobre el hueso
+   • CC 5: Completamente cubiertos, forma convexa sin ángulos visibles
+
+C) CAVIDAD ENTRE BASE DE COLA Y PINBONE (tailhead-pinbone cavity) — vista trasera:
+   • CC 1: Cavidad muy profunda, forma V muy abierta y marcada
+   • CC 2: Cavidad profunda, V clara
+   • CC 3: Cavidad moderada, V se suaviza hacia U
+   • CC 4: Cavidad superficial, casi rellena de grasa
+   • CC 5: Sin cavidad visible; zona plana o rellena de grasa
+
+════ CRITERIO DE INTEGRACIÓN ════
+Usá los tres indicadores complementarios (A, B, C) para confirmar o refinar el puntaje obtenido con la metodología principal. Si hay discrepancia entre indicadores, promediá con criterio clínico y bajá la confianza a "media".
+
+Etapa fisiológica actual del rodeo: ${stage.label}
+EC objetivo para esta etapa: ${stage.target} (rango aceptable: ${stage.range})
+
+Respondé SOLO con un objeto JSON válido, sin texto adicional, sin bloques de código:`;
+
+  const userPrompt = `Analizá esta foto trasera de una vaca lechera y devolvé EXCLUSIVAMENTE este JSON completo:
+{
+  "score": <número con 0.25 de precisión, ej: 2.75>,
+  "shape": "<'V' o 'U'>",
+  "confidence": "<'alta', 'media' o 'baja'>",
+  "observations": [
+    "<observación concreta 1>",
+    "<observación concreta 2>",
+    "<observación concreta 3>"
+  ],
+  "interpretation": "<1-2 oraciones sobre qué significa este puntaje para la vaca>",
+  "recommendation": "<acción concreta recomendada para esta etapa productiva>",
+  "alert": <null si CC es aceptable, o "string con advertencia" si hay riesgo de cetosis, distocia, etc.>
+}`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-5',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+            { type: 'text',  text: userPrompt }
+          ]
+        }]
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `Error HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    const raw  = data.content?.[0]?.text?.trim() || '';
+
+    let result;
+    try {
+      const match = raw.match(/\{[\s\S]*\}/);
+      result = JSON.parse(match ? match[0] : raw);
+    } catch {
+      throw new Error('La IA no devolvió un formato válido. Intentá de nuevo.');
+    }
+
+    result.image     = capturedDataUrl;
+    result.stage     = stage.label;
+    result.target    = stage.target;
+    result.range     = stage.range;
+    result.timestamp = new Date().toISOString();
+
+    saveHistory(result);
+    renderResult(result);
+    nav('result');
+
+  } catch (err) {
+    alert('❌ Error al analizar:\n' + err.message);
+    console.error(err);
+  } finally {
+    document.getElementById('loadingOverlay').classList.remove('show');
+  }
+}
+
+/* ═══════════════════════════════════════
+   RENDER RESULT
+═══════════════════════════════════════ */
+function scoreColor(s) {
+  if (s <= 1.75) return 'var(--red)';
+  if (s <= 2.25) return 'var(--orange)';
+  if (s <= 2.75) return 'var(--yellow)';
+  if (s <= 3.25) return 'var(--green)';
+  if (s <= 3.75) return '#059669';
+  if (s <= 4.25) return 'var(--blue)';
+  return 'var(--purple)';
+}
+
+function badgeInfo(score, target) {
+  const d = score - target;
+  if (d < -0.75) return { text: '⚠️ Muy por debajo del objetivo', cls: 'alert-danger' };
+  if (d < -0.26) return { text: '📉 Por debajo del objetivo',     cls: 'alert-warn' };
+  if (Math.abs(d) <= 0.25) return { text: '✅ Condición óptima',  cls: 'alert-ok' };
+  if (d <= 0.75) return { text: '📈 Sobre el objetivo',           cls: 'alert-warn' };
+  return { text: '⚠️ Exceso de condición corporal',               cls: 'alert-danger' };
+}
+
+function renderResult(r) {
+  const color = scoreColor(r.score);
+  const badge = badgeInfo(r.score, r.target);
+  const date  = new Date(r.timestamp).toLocaleString('es-AR', {
+    day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+  });
+
+  document.getElementById('resultContent').innerHTML = `
+    ${r.image ? `<img src="${r.image}" class="result-img" alt="Foto evaluada">` : ''}
+
+    <div class="card" style="text-align:center;">
+      <div class="score-lbl">Condición Corporal</div>
+      <div class="score-num" style="color:${color}">${r.score}</div>
+      <div class="${badge.cls} alert-box badge" style="margin:10px auto 0;">${badge.text}</div>
+      <div class="meta-row" style="justify-content:center;margin-top:10px;">
+        <span class="meta-chip">📍 ${r.stage}</span>
+        <span class="meta-chip">🎯 Objetivo: ${r.target} (${r.range})</span>
+        <span class="meta-chip">Forma ${r.shape === 'V' ? '▽ V' : '∪ U'}</span>
+        <span class="meta-chip">Confianza: ${r.confidence}</span>
+      </div>
+    </div>
+
+    ${r.alert ? `<div class="alert-box alert-danger">🚨 ${r.alert}</div>` : ''}
+
+    <div class="card">
+      <div class="card-title">🔍 Observaciones</div>
+      ${(r.observations || []).map(o =>
+        `<div class="obs-item"><span class="obs-bullet">•</span><span>${o}</span></div>`
+      ).join('')}
+    </div>
+
+    <div class="card">
+      <div class="card-title">📖 Interpretación</div>
+      <p style="font-size:14px;line-height:1.65;margin-bottom:12px;">${r.interpretation}</p>
+      <div class="card-title" style="margin-top:4px;">💊 Recomendación</div>
+      <div class="reco-box">${r.recommendation}</div>
+    </div>
+
+    <div class="card" style="text-align:center;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">📅 ${date}</div>
+      <button class="btn btn-secondary" onclick="nav('home')">📷 Nueva evaluación</button>
+    </div>
+  `;
+}
+
+/* ═══════════════════════════════════════
+   HISTORY
+═══════════════════════════════════════ */
+function saveHistory(r) {
+  let h = JSON.parse(localStorage.getItem('cc_history') || '[]');
+  h.unshift(r);
+  if (h.length > 30) h = h.slice(0, 30);
+  localStorage.setItem('cc_history', JSON.stringify(h));
+}
+
+function renderHistory() {
+  const h   = JSON.parse(localStorage.getItem('cc_history') || '[]');
+  const el  = document.getElementById('historyList');
+  if (!h.length) {
+    el.innerHTML = `<div class="empty"><div class="e-ico">📋</div>
+      <p>No hay evaluaciones todavía.<br>Tomá la primera foto para comenzar.</p></div>`;
+    return;
+  }
+  el.innerHTML = h.map((item, i) => {
+    const color = scoreColor(item.score);
+    const date  = new Date(item.timestamp).toLocaleDateString('es-AR', {
+      day:'2-digit', month:'short', year:'numeric'
+    });
+    const time  = new Date(item.timestamp).toLocaleTimeString('es-AR', {
+      hour:'2-digit', minute:'2-digit'
+    });
+    const thumb = item.image
+      ? `<img src="${item.image}" class="hist-thumb" alt="">`
+      : `<div class="hist-thumb">🐄</div>`;
+    const desc  = (item.interpretation || '').substring(0, 70) + '…';
+    return `
+      <div class="hist-item" onclick="viewHistory(${i})">
+        ${thumb}
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span class="hist-score" style="color:${color}">${item.score}</span>
+            <span style="font-size:11px;color:var(--muted);">${item.stage || ''}</span>
+          </div>
+          <div class="hist-date">${date} · ${time}</div>
+          <div class="hist-desc">${desc}</div>
+        </div>
+        <span style="color:var(--muted);font-size:20px;margin-left:4px;">›</span>
+      </div>`;
+  }).join('');
+}
+
+function viewHistory(i) {
+  const h = JSON.parse(localStorage.getItem('cc_history') || '[]');
+  if (h[i]) { renderResult(h[i]); nav('result'); }
+}
+
+function clearHistory() {
+  if (confirm('¿Borrar todo el historial?')) {
+    localStorage.removeItem('cc_history');
+    renderHistory();
+  }
+}
+
+/* ═══════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════ */
+function loadSettings() {
+  const key   = localStorage.getItem('cc_api_key') || '';
+  const stage = localStorage.getItem('cc_stage')   || 'temprana';
+  document.getElementById('apiKeyInput').value = key;
+  document.getElementById('stageSelect').value = stage;
+  document.getElementById('keyStatus').innerHTML = key
+    ? '<span class="status-ok">✅ API Key configurada</span>'
+    : '<span class="status-err">Sin clave configurada</span>';
+}
+
+function saveKey() {
+  const k = document.getElementById('apiKeyInput').value.trim();
+  const el = document.getElementById('keyStatus');
+  if (!k) { el.innerHTML = '<span class="status-err">❌ Ingresá una clave válida</span>'; return; }
+  localStorage.setItem('cc_api_key', k);
+  el.innerHTML = '<span class="status-ok">✅ Clave guardada correctamente</span>';
+}
+
+function saveStage() {
+  const s = document.getElementById('stageSelect').value;
+  localStorage.setItem('cc_stage', s);
+  const lbl = document.getElementById('stageSelect').options[document.getElementById('stageSelect').selectedIndex].text;
+  alert('✅ Etapa guardada:\n' + lbl);
+}
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+loadSettings();
+</script>
+</body>
+</html>
