@@ -361,6 +361,14 @@
     </div>
   </div>
 
+  <!-- RP de la Vaca -->
+  <div class="card" style="padding:14px 14px 4px;">
+    <div class="card-title">🐄 RP de la Vaca</div>
+    <input type="text" id="rpInput" placeholder="Ingresá el RP (ej: 1045-A)" maxlength="20"
+      style="margin-bottom:0; text-transform:uppercase; letter-spacing:.5px; font-weight:700;"
+      oninput="this.value=this.value.toUpperCase()" />
+  </div>
+
   <!-- Camera area -->
   <div class="card" style="padding:14px;">
     <div class="cam-zone" id="camZone">
@@ -866,6 +874,7 @@ Respondé SOLO con un objeto JSON válido, sin texto adicional, sin bloques de c
     }
 
     result.image     = capturedDataUrl;
+    result.rp        = document.getElementById('rpInput').value.trim() || '—';
     result.stage     = stage.label;
     result.target    = stage.target;
     result.range     = stage.range;
@@ -916,6 +925,7 @@ function renderResult(r) {
     ${r.image ? `<img src="${r.image}" class="result-img" alt="Foto evaluada">` : ''}
 
     <div class="card" style="text-align:center;">
+      ${r.rp && r.rp !== '—' ? `<div style="font-size:12px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">RP: <span style="color:var(--green-dark)">${r.rp}</span></div>` : ''}
       <div class="score-lbl">Condición Corporal</div>
       <div class="score-num" style="color:${color}">${r.score}</div>
       <div class="${badge.cls} alert-box badge" style="margin:10px auto 0;">${badge.text}</div>
@@ -987,6 +997,7 @@ function renderHistory() {
           <div style="display:flex;align-items:baseline;gap:8px;">
             <span class="hist-score" style="color:${color}">${item.score}</span>
             <span style="font-size:11px;color:var(--muted);">${item.stage || ''}</span>
+            ${item.rp && item.rp !== '—' ? `<span style="font-size:11px;font-weight:700;color:var(--green-dark);">· ${item.rp}</span>` : ''}
           </div>
           <div class="hist-date">${date} · ${time}</div>
           <div class="hist-desc">${desc}</div>
