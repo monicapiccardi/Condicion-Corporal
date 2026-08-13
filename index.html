@@ -400,7 +400,7 @@
       ✅ Foto desde atrás, centrada en la grupa<br>
       ✅ Buena luz natural, sin sombras duras<br>
       ✅ Vaca quieta y parada en terreno plano<br>
-      ✅ Incluir hueso de cadera e isquiones<br>
+      ✅ Incluir tuberosidades ilíacas, isquiáticas y base de cola<br>
       ❌ Evitar ángulos laterales o desde adelante
     </div>
   </div>
@@ -438,12 +438,12 @@
           <div class="ref-detail">
             Estructura ósea obvia. Cavidad tailhead-pinbone en <strong>V clara</strong>.
             Vértebras con bordes afilados. Hook bones angulares con escasa grasa.
-            Isquiones y ala del ileón marcados. 2/3 costillas cortas visibles.
+            Isquiones y tuberosidad ilíaca marcados. 2/3 costillas cortas visibles.
           </div>
           <div class="ref-chips">
             <span class="ref-chip">▽ V clara</span>
             <span class="ref-chip">Poca grasa</span>
-            <span class="ref-chip">Hook bones angulares</span>
+            <span class="ref-chip">Iliaca angular</span>
           </div>
         </div>
       </div>
@@ -454,14 +454,13 @@
         <div class="ref-content">
           <div class="ref-title">Bajo el óptimo</div>
           <div class="ref-detail">
-            Línea cadera-isquión en V. Isquión con algo de grasa subcutánea palpable.
-            Cavidad tailhead-pinbone visible pero menos profunda.
-            Mitad de costillas cortas visibles. Vértebras con grasa escasa.
+            Tuberosidad ilíaca angulosa. Isquión angular pero con algo de grasa subcutánea visible.
+            Zona base de cola con leve tejido subcutáneo. Vértebras con grasa escasa.
           </div>
           <div class="ref-chips">
             <span class="ref-chip">▽ V moderada</span>
-            <span class="ref-chip">Grasa incipiente</span>
-            <span class="ref-chip">½ costillas visibles</span>
+            <span class="ref-chip">Sacra con algo de tejido</span>
+            <span class="ref-chip">Isquión angular</span>
           </div>
         </div>
       </div>
@@ -472,14 +471,13 @@
         <div class="ref-content">
           <div class="ref-title">Óptima — equilibrio estructura/cobertura</div>
           <div class="ref-detail">
+            Tuberosidad ilíaca <strong>cubierta</strong> (punto de partida clave).
             Línea cadera-isquión en <strong>V suave o U incipiente</strong>.
-            Cavidad tailhead-pinbone moderada, V que se suaviza.
-            Vértebras visibles con buena cobertura grasa. Hook bones equilibrados.
-            Ligamentos sacro y laterales de cola visibles (3.25) o parcialmente visibles (3.50).
+            Ligamentos sacrolaterales visibles (3.25) o parcialmente visibles (3.50).
           </div>
           <div class="ref-chips">
+            <span class="ref-chip">Iliaca cubierta</span>
             <span class="ref-chip">V→U transición</span>
-            <span class="ref-chip">Grasa moderada</span>
             <span class="ref-chip">Ligamentos visibles</span>
           </div>
         </div>
@@ -491,9 +489,9 @@
         <div class="ref-content">
           <div class="ref-title">Buena — leve sobrecondición</div>
           <div class="ref-detail">
-            Línea cadera-isquión en <strong>U</strong>. Cavidad tailhead-pinbone superficial.
+            Línea cadera-isquión en <strong>U</strong>. Cavidad base de cola-isquiones superficial.
             Ligamento sacro visible, laterales de cola parcialmente ocultos.
-            Hook bones redondeados, grasa predomina. Vértebras apenas perceptibles.
+            Hook bones redondeados, grasa predomina.
           </div>
           <div class="ref-chips">
             <span class="ref-chip">∪ U clara</span>
@@ -509,9 +507,9 @@
         <div class="ref-content">
           <div class="ref-title">Gorda — estructura poco visible</div>
           <div class="ref-detail">
-            Cobertura grasa domina sobre la estructura. Cavidad tailhead-pinbone casi rellena.
+            Cobertura grasa domina. Cavidad base de cola-isquiones casi rellena.
             Ambos ligamentos de cola no visibles. Línea cadera-isquión recta.
-            Hook bones completamente redondeados. Vértebras enterradas bajo grasa.
+            Hook bones completamente redondeados.
           </div>
           <div class="ref-chips">
             <span class="ref-chip">∪ U llena</span>
@@ -527,9 +525,8 @@
         <div class="ref-content">
           <div class="ref-title">Obesa — sobrecondición severa</div>
           <div class="ref-detail">
-            Sin accidentes óseos visibles. Cavidad tailhead-pinbone completamente rellena, zona plana.
-            Grasa en depósitos visibles. Hook bones y vértebras enterrados.
-            Alto riesgo de cetosis, distocia y patologías reproductivas.
+            Sin accidentes óseos visibles. Zona base de cola completamente rellena, plana.
+            Grasa en depósitos visibles. Alto riesgo de cetosis y patologías reproductivas.
           </div>
           <div class="ref-chips">
             <span class="ref-chip">Sin huesos visibles</span>
@@ -613,9 +610,9 @@
   <div class="card">
     <div class="card-title">ℹ️ Acerca de la app</div>
     <div class="setting-desc" style="margin:0;">
-      Metodología Ferguson et al. (1994) — escala USA 1 a 5.<br>
-      Basada en Grigera & Bargo (2005), Elanco Animal Health.<br><br>
-      <strong>Versión 1.0</strong> · Solo para uso orientativo.<br>
+      Metodología Corbellini, Grigera & Bargo (2005) — escala 1 a 5.<br>
+      Árbol de decisión basado en tuberosidades ilíaca, isquiática y sacra.<br><br>
+      <strong>Versión 1.1</strong> · Solo para uso orientativo.<br>
       La evaluación no reemplaza al veterinario.
     </div>
   </div>
@@ -749,60 +746,72 @@ async function analyze() {
   const base64    = capturedDataUrl.split(',')[1];
   const mediaType = capturedDataUrl.split(';')[0].split(':')[1];
 
-  const systemPrompt = `Sos un especialista en evaluación de condición corporal (CC/BCS) en vacas lecheras, usando la escala americana de 1 a 5 (Ferguson et al., 1994) donde cada punto se subdivide en cuartos de 0.25.
+  const systemPrompt = `Sos un especialista en evaluación de condición corporal (CC) en vacas lecheras, usando la escala argentina de 1 a 5 (Corbellini, Grigera & Bargo 2005) con subdivisiones de 0.25 puntos.
 
-════ METODOLOGÍA PRINCIPAL (Ferguson et al., 1994) ════
+════ ÁRBOL DE DECISIÓN — seguí este orden estricto ════
 
-PASO 1 — forma de la línea cadera-isquión vista desde atrás:
-   • Forma V (ángulo visible, fémur expuesto) → CC ≤ 3.0
-   • Forma U (redondeada, grasa cubre fémur) → CC ≥ 3.25
+PASO 1 — TUBEROSIDAD ILIACA (caderas / hook bones), vista trasera:
+  ¿Cubierta, sin ángulos pronunciados, con grasa visible? → ir a BLOQUE A (CC ≥ 3.0)
+  ¿Angulosa, con depresiones marcadas a ambos lados?     → ir a BLOQUE B (CC ≤ 2.75)
 
-PASO 2a — Para CC ≤ 3.0, evaluá en orden:
-   • Vista lateral en V, cadera redondeada desde atrás → CC 3.0
-   • Cadera angular, isquión parcialmente cubierto por grasa → CC 2.75
-   • Ala del ileón e isquión angulares, grasa subcutánea palpable → CC 2.50
-   • Sin grasa en isquión → CC < 2.50
-   • Mitad de costillas cortas visibles → CC 2.25
-   • 2/3 de costillas cortas visibles → CC 2.0
-   • Todas las estructuras óseas muy prominentes → CC 1.0–1.75
+══ BLOQUE A — Iliaca cubierta (CC ≥ 3.0) ══
+  Evaluar progresión del relleno del anca, de menor a mayor:
+  · Línea cadera-isquión en V suave, iliaca apenas cubierta                 → CC 3.0
+  · Anca moderadamente rellena, ligamentos sacrolaterales visibles           → CC 3.25
+  · Buen relleno, ligamento sacro visible, laterales no                      → CC 3.50
+  · Relleno notorio, depósitos de grasa visibles sobre isquiones             → CC 3.75
+  · Sin accidentes óseos visibles, zona plana o convexa                      → CC ≥ 4.0
+    › Punta de costillas cortas no visible                                   → CC 4.25
+    › Isquión sumergido en grasa                                             → CC 4.50
+    › Cadera no visible                                                      → CC 4.75
+    › Toda estructura ósea enterrada                                         → CC 5.0
 
-PASO 2b — Para CC ≥ 3.25, evaluá en orden:
-   • Ligamento sacro y ligamentos laterales de cola visibles → CC 3.25
-   • Ligamento sacro visible, laterales parcialmente visibles → CC 3.50
-   • Ligamento sacro parcialmente visible, laterales no visibles → CC 3.75
-   • Ambos ligamentos no visibles, línea recta cadera-isquión → CC ≥ 4.0
-   • Punta de costillas cortas no visible → CC 4.25
-   • Isquión sumergido en grasa → CC 4.50
-   • Hueso de cadera no visible → CC 4.75
-   • Sin accidentes óseos visibles → CC 5.0
+══ BLOQUE B — Iliaca angulosa (CC ≤ 2.75) ══
 
-════ INDICADORES COMPLEMENTARIOS ════
+PASO 2 — TUBEROSIDAD ISQUIÁTICA (isquiones / pin bones):
+  ¿Cubierta, con tejido graso visible alrededor?  → CC 2.75
+  ¿Angular, hueso prominente sin cobertura grasa? → ir a PASO 3
 
-A) VÉRTEBRAS DORSALES — sección transversal (Vista desde arriba o atrás):
-   • CC 1: Procesos espinosos muy agudos y prominentes, sin grasa, músculos lumbares hundidos
-   • CC 2: Procesos espinosos visibles con bordes afilados, mínima cobertura grasa
-   • CC 3: Procesos espinosos visibles pero con grasa moderada; equilibrio hueso-músculo
-   • CC 4: Procesos espinosos apenas perceptibles; la grasa domina sobre el hueso
-   • CC 5: Procesos espinosos enterrados bajo grasa; línea dorsal plana o convexa
+PASO 3 — ZONA BASE DE COLA / TUBEROSIDAD SACRA:
+  Observar la depresión entre la cola y los isquiones:
+  ¿Hay tejido subcutáneo visible (zona rellena, no hundida)?  → CC 2.50
+  ¿La zona está deprimida, hundida, tejido muy escaso?        → ir a PASO 4
 
-B) HUESOS DE LA CADERA / HOOK BONES — sección transversal desde atrás:
-   • CC 1: Muy angulares, cavidades profundas a ambos lados, sin cobertura grasa
-   • CC 2: Angulares, cavidades evidentes, escasa grasa
-   • CC 3: Equilibrio entre ángulo óseo y cobertura grasa
-   • CC 4: Forma más redondeada, grasa predomina sobre el hueso
-   • CC 5: Completamente cubiertos, forma convexa sin ángulos visibles
+PASO 4 — APÓFISIS TRANSVERSAS (vértebras lumbares):
+  · Apenas marcadas o parcialmente visibles    → CC 2.25
+  · Bien marcadas                              → CC 2.0
+  · Muy prominentes, costillas cortas visibles → CC 1.75
+  · Todos los huesos extremadamente prominentes → CC 1.0–1.5
 
-C) CAVIDAD ENTRE BASE DE COLA Y PINBONE (tailhead-pinbone cavity) — vista trasera:
-   • CC 1: Cavidad muy profunda, forma V muy abierta y marcada
-   • CC 2: Cavidad profunda, V clara
-   • CC 3: Cavidad moderada, V se suaviza hacia U
-   • CC 4: Cavidad superficial, casi rellena de grasa
-   • CC 5: Sin cavidad visible; zona plana o rellena de grasa
+════ CONFIRMACIÓN CON INDICADORES COMPLEMENTARIOS ════
 
-════ CRITERIO DE INTEGRACIÓN ════
-Usá los tres indicadores complementarios (A, B, C) para confirmar o refinar el puntaje obtenido con la metodología principal. Si hay discrepancia entre indicadores, promediá con criterio clínico y bajá la confianza a "media".
+Usá estos 3 indicadores para confirmar o ajustar ±0.25 el resultado del árbol:
 
-Etapa fisiológica actual del rodeo: ${stage.label}
+1. PROCESOS ESPINOSOS DORSALES:
+   CC 1–1.75 → agudos, muy prominentes, sin grasa
+   CC 2–2.5  → visibles con bordes afilados, mínima grasa
+   CC 2.75–3 → visibles pero con buena cobertura grasa
+   CC 3.25–4 → cubiertos, grasa predomina
+   CC 4.5–5  → enterrados, línea dorsal plana o convexa
+
+2. HOOK BONES — sección desde atrás:
+   CC 1–2   → muy angulares, depresiones profundas a ambos lados
+   CC 2.5–3 → equilibrio entre ángulo óseo y cobertura grasa
+   CC 3.5–4 → redondeados, grasa predomina sobre el hueso
+   CC 5     → completamente cubiertos, sin ángulos visibles
+
+3. CAVIDAD BASE DE COLA–ISQUIONES:
+   CC 1–2  → V profunda y abierta
+   CC 2.5  → V moderada
+   CC 3    → V suave o U incipiente
+   CC 3.5  → U clara
+   CC 4+   → casi rellena o completamente plana
+
+════ REGLA FINAL ════
+Si los indicadores complementarios discrepan > 0.5 puntos con el árbol de decisión,
+registrá confianza "baja" y explicá la discrepancia en observaciones.
+
+Etapa fisiológica del rodeo: ${stage.label}
 EC objetivo para esta etapa: ${stage.target} (rango aceptable: ${stage.range})
 
 Respondé SOLO con un objeto JSON válido, sin texto adicional, sin bloques de código:`;
